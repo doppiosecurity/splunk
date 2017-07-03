@@ -1,0 +1,39 @@
+<form>
+  <label>FPSS-Search_Username</label>
+  <fieldset submitButton="false">
+    <input type="dropdown" token="field1" searchWhenChanged="true">
+      <label>Username</label>
+      <fieldForLabel>mail</fieldForLabel>
+      <fieldForValue>mail</fieldForValue>
+      <search>
+        <query>index="msad" sourcetype=ActiveDirectory mail=* | stats count by mail</query>
+        <earliest>-24h@h</earliest>
+        <latest>now</latest>
+      </search>
+    </input>
+  </fieldset>
+  <row>
+    <panel>
+      <table>
+        <title>Employee Info</title>
+        <search>
+          <query>index=msad host="*-dc*" sourcetype="activedirectory" mail="$field1$" | fillnull value="NULL" manager employeeID title pwdLastSet | stats count by title employeeID manager pwdLastSet</query>
+          <earliest>-7d@h</earliest>
+          <latest>now</latest>
+        </search>
+        <option name="drilldown">none</option>
+      </table>
+    </panel>
+    <panel>
+      <title>O365-Activity: $field1$</title>
+      <table>
+        <search>
+          <query>index=azure sourcetype="ms:o365:management" user="$field1$" | stats count by Operation</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+        </search>
+        <option name="drilldown">none</option>
+      </table>
+    </panel>
+  </row>
+</form>

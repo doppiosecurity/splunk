@@ -1,0 +1,68 @@
+<form>
+  <label>FPSS-Computer-Lookup</label>
+  <fieldset submitButton="false" autoRun="false">
+    <input type="dropdown" token="field1" searchWhenChanged="true">
+      <label>ComputerName</label>
+      <fieldForLabel>nt_host</fieldForLabel>
+      <fieldForValue>nt_host</fieldForValue>
+      <search>
+        <query>index=main host="*-dc-1" sourcetype="dhcpsrvlog" | stats count by nt_host | replace "*.corp.the-css.org" with * in nt_host</query>
+        <earliest>-24h@h</earliest>
+        <latest>now</latest>
+      </search>
+    </input>
+  </fieldset>
+  <row>
+    <panel>
+      <title>DHCP LOGS: $field1$</title>
+      <table>
+        <search>
+          <query>index=main host="*-dc-1" sourcetype="dhcpsrvlog" nt_host="$field1$*" | stats count by nt_host dest_ip</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+        </search>
+        <option name="drilldown">none</option>
+      </table>
+    </panel>
+    <panel>
+      <table>
+        <title>Last logged in User (Tanium)</title>
+        <search>
+          <query>index=main $field1$* sourcetype=tanium | stats count by Computer_Name Logged_In_Users | replace "CSS\*" with * in Logged_In_Users</query>
+          <earliest>-7d@h</earliest>
+          <latest>now</latest>
+          <finalized>
+            <condition match=" 'job.resultCount' != 0">
+              <set token="field2">$result.Logged_In_Users$</set>
+            </condition>
+          </finalized>
+        </search>
+        <option name="drilldown">none</option>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <table>
+        <title>Active Directory Information: $field2$</title>
+        <search>
+          <query>index="msad" sourcetype=ActiveDirectory mail=$field2$* | stats count by mail cn telephoneNumber</query>
+          <earliest>-7d@h</earliest>
+          <latest>now</latest>
+        </search>
+        <option name="drilldown">none</option>
+      </table>
+    </panel>
+    <panel>
+      <table>
+        <title>Wireless Activity: $field1$</title>
+        <search>
+          <query>index=meraki sourcetype=meraki $field1$ | stats count by date_month date_mday src_mac</query>
+          <earliest>-7d@h</earliest>
+          <latest>now</latest>
+        </search>
+        <option name="drilldown">none</option>
+      </table>
+    </panel>
+  </row>
+</form>
