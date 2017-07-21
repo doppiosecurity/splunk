@@ -6,7 +6,7 @@
       <fieldForLabel>nt_host</fieldForLabel>
       <fieldForValue>nt_host</fieldForValue>
       <search>
-        <query>index=main host="*-dc-1" sourcetype="dhcpsrvlog" | stats count by nt_host | replace "*.corp.the-css.org" with * in nt_host</query>
+        <query>index=main host="*-dc-1" sourcetype="dhcpsrvlog" | stats count by nt_host | replace "*.domain.org" with * in nt_host</query>
         <earliest>-24h@h</earliest>
         <latest>now</latest>
       </search>
@@ -28,7 +28,7 @@
       <table>
         <title>Last logged in User (Tanium)</title>
         <search>
-          <query>index=main $field1$* sourcetype=tanium | stats count by Computer_Name Logged_In_Users | replace "CSS\*" with * in Logged_In_Users</query>
+          <query>index=main $field1$* sourcetype=tanium | stats count by Computer_Name Logged_In_Users | replace "DOMAIN\*" with * in Logged_In_Users</query>
           <earliest>-7d@h</earliest>
           <latest>now</latest>
           <finalized>
